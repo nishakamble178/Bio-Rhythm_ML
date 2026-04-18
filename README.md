@@ -1,73 +1,57 @@
 ### Bio-Rhythm
 
-**Bio-Rhythm** is a security-focused authentication platform that utilizes **keystroke dynamics** to verify user identity. Unlike traditional passwords that rely on *what* you know, this system focuses on *how* you type, providing a layer of behavioral biometrics that is difficult to mimic or steal.
+**Bio-Rhythm** is a behavioral biometric security platform that identifies and authenticates users based on their unique typing patterns. Instead of relying on traditional passwords, it analyzes the millisecond-level timing of keystrokes—specifically how long keys are held and the latency between presses—to create a "digital rhythm" that is nearly impossible to forge.
 
-The project is designed to distinguish between authorized users and impostors by analyzing the unique timing patterns in their typing behavior, such as the duration a key is held and the latency between specific key presses.
+It serves as a non-intrusive security layer that can distinguish between an authorized user and an imposter with high precision.
 
----
+## **Features**
 
-### Features
+### **Identity Verification**
+* **High-Accuracy Prediction:** Achieves a **94.49% accuracy** rate in identifying users.
+* **Neural Confidence:** Provides a real-time probability score indicating the AI's certainty.
+* **Imposter Detection:** Instantly flags "Signature Mismatches" when typing patterns deviate from the stored baseline.
 
-**Behavioral Authentication**
-* Captures real-time typing patterns during login or registration.
-* Analyzes "Dwell Time" (how long a key is pressed) and "Flight Time" (time between keys).
+### **Biometric Analytics**
+* **Real-time Simulation:** Interactive sliders for Hold Duration (H), Down-Down Latency (DD), and Up-Down Latency (UD).
+* **Visual Comparison:** Generates live Area Charts comparing the current user's rhythm against the system's authorized baseline.
+* **Session Monitoring:** Tracks timing nuances across 33 different keystroke features.
 
-**Machine Learning Integration**
-* Uses a trained **Random Forest** classifier to identify users.
-* Achieves a high verification accuracy of **94%**.
-
-**Identity Verification**
-* Compares current typing input against stored behavioral profiles.
-* Provides a confidence score to grant or deny access.
-
-**Data Visualization**
-* Displays typing rhythm patterns for analysis.
-* Visualizes model performance metrics and classification results.
+### **Security Dashboard**
+* **Status Reporting:** Clear visual indicators for "Authenticated" or "Rejected" status.
+* **Data Normalization:** Built-in preprocessing that scales raw timing data for consistent analysis across different sessions.
 
 ---
 
-### Technology Stack
+## **Technology Stack**
 
-**Frontend**
-* **HTML / CSS**: For the user interface and data input forms.
-* **JavaScript**: To capture precise millisecond-level keyboard events.
+### **Frontend & UI**
+* **Streamlit:** For the interactive web dashboard and real-time visualizations.
+* **Matplotlib / Plotly:** For generating the biometric signature graphs.
 
-**Backend & Logic**
-* **Python**: Handles the core machine learning logic and data processing.
-* **Flask / FastAPI**: Acts as the bridge between the frontend and the ML model.
+### **Machine Learning & Backend**
+* **Python:** The core programming language.
+* **Scikit-learn:** Used for the **Random Forest Classifier** and **StandardScaler** implementation.
+* **Pandas & NumPy:** For high-speed data manipulation and feature engineering.
 
-**Machine Learning**
-* **Scikit-Learn**: For implementing the Random Forest algorithm.
-* **Pandas / NumPy**: For data manipulation and feature engineering.
-
-**Database**
-* **PostgreSQL**: Stores user credentials and encrypted behavioral feature vectors.
+### **Models & Storage**
+* **Random Forest (Ensemble Learning):** The primary decision engine trained on 100+ decision trees.
+* **Joblib / Pickle:** For storing and loading the pre-trained model and scaler weights.
 
 ---
 
-### Database Structure
+## **Data Structure (Feature Vector)**
 
-The system utilizes several key tables to manage users and their biometric signatures:
+Unlike a traditional database with tables, this system operates on a **High-Dimensional Feature Vector**. The system processes 33 specific timing features for every prediction:
 
-**users**
-Stores basic account information and profile details.
-* `id`: Unique identifier for the user.
-* `user_name`: Chosen handle for the account.
-* `email`: Primary contact and login identifier.
-* `created_at`: Timestamp of account creation.
 
-**keystroke_data**
-Stores the raw and processed timing features captured during sessions.
-* `id`: Unique record ID.
-* `user_id`: Foreign key linking to the `users` table.
-* `hold_time`: Array of durations for key presses.
-* `latency`: Array of intervals between consecutive keys.
-* `mean_dwell_time`: Calculated average of key hold durations.
-* `mean_flight_time`: Calculated average of intervals between keys.
+### **The Feature Set includes:**
 
-**model_metadata**
-Tracks the versioning and performance of the trained profiles.
-* `id`: Unique identifier.
-* `user_id`: Reference to the specific user profile.
-* `accuracy_score`: The verification accuracy for that specific profile (e.g., 0.94).
-* `last_trained`: Timestamp of the last model update.
+* **H (Hold Time):** The duration from the moment a key is pressed to when it is released.
+* **DD (Down-Down):** The time elapsed between two consecutive key-down events.
+* **UD (Up-Down):** The time elapsed between a key-release and the next key-press.
+
+### **Prediction Flow:**
+1.  **Input:** User provides a sequence of 33 timing values.
+2.  **Scaling:** Data is passed through a `StandardScaler` to match the training distribution.
+3.  **Inference:** The **Random Forest** model processes the 33 features.
+4.  **Output:** Returns the `User_ID` with the highest probability and the associated confidence score.
